@@ -13,7 +13,7 @@ crawler:
 #   • 显示内容：当日所有匹配新闻 + 新增新闻区域
 #   • 适用场景：日报总结、全面了解当日热点趋势
 #
-# 🔸 current（当前榜单模式）
+ 🔸 current（当前榜单模式）
 #   • 推送时机：按时推送(默认每小时推送一次)
 #   • 显示内容：当前榜单匹配新闻 + 新增新闻区域
 #   • 适用场景：实时热点追踪、了解当前最火的内容
@@ -25,11 +25,11 @@ crawler:
 
 # 推送模式选择
 report:
-  mode: "daily" # 可选: "daily"|"incremental"|"current"
-  rank_threshold: 5 # 排名高亮阈值
+  mode: "current" # 可选: "daily"|"incremental"|"current"
+  rank_threshold: 20 # 排名高亮阈值
 
 notification:
-  enable_notification: true # 是否启用通知功能，如果 false，则不发送手机通知
+  enable_notification: false # 是否启用通知功能，如果 false，则不发送手机通知
   message_batch_size: 4000 # 消息分批大小（字节）(这个配置别动)
   dingtalk_batch_size: 20000 # 钉钉消息分批大小（字节）(这个配置也别动)
   feishu_batch_size: 29000 # 飞书消息分批大小（字节）
@@ -81,21 +81,29 @@ platforms:
     name: "今日头条"
   - id: "baidu"
     name: "百度热搜"
+  - id: "weibo"
+    name: "微博"
   - id: "wallstreetcn-hot"
     name: "华尔街见闻"
+  - id: "cls-hot"
+    name: "财联社热门"
   - id: "thepaper"
     name: "澎湃新闻"
   - id: "bilibili-hot-search"
     name: "bilibili 热搜"
-  - id: "cls-hot"
-    name: "财联社热门"
-  - id: "ifeng"
-    name: "凤凰网"
-  - id: "tieba"
-    name: "贴吧"
-  - id: "weibo"
-    name: "微博"
   - id: "douyin"
     name: "抖音"
   - id: "zhihu"
     name: "知乎"
+  - id: "36kr"
+    name: "36氪"
+  - id: "ithome"
+    name: "IT之家"
+  - id: "juejin"
+    name: "稀土掘金"
+  - id: "hupu"
+    name: "虎扑"
+  - id: "sspai"
+    name: "少数派"
+  - id: "coolapk"
+    name: "酷安"
