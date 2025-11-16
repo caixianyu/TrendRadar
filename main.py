@@ -342,12 +342,20 @@ def generate_all_news_html(all_news_results: Dict, id_to_name: Dict) -> str:
             ranks = title_data.get("ranks", [])
             url = title_data.get("url", "")
             mobile_url = title_data.get("mobileUrl", "")
+            desc = title_data.get("desc", "")
+            hot = title_data.get("hot", "")
+            timestamp = title_data.get("timestamp", "")
+            extra = title_data.get("extra", {})
             
             platform_news[source_name].append({
                 "title": title,
                 "ranks": ranks,
                 "url": url,
-                "mobileUrl": mobile_url
+                "mobileUrl": mobile_url,
+                "desc": desc,
+                "hot": hot,
+                "timestamp": timestamp,
+                "extra": extra
             })
     
     # 生成 HTML
@@ -431,9 +439,10 @@ def generate_all_news_html(all_news_results: Dict, id_to_name: Dict) -> str:
             padding-top: 0;
         }
         .news-card.expanded .news-content {
-            max-height: 500px;
+            max-height: 800px;
             padding-top: 15px;
             transition: max-height 0.5s ease-in;
+            overflow-y: auto;
         }
         .news-detail {
             padding: 15px;
@@ -441,6 +450,7 @@ def generate_all_news_html(all_news_results: Dict, id_to_name: Dict) -> str:
             border-radius: 6px;
             font-size: 14px;
             color: #4a5568;
+            line-height: 1.8;
         }
         .filter-bar {
             margin: 20px 0;
@@ -547,19 +557,50 @@ def generate_all_news_html(all_news_results: Dict, id_to_name: Dict) -> str:
             else:
                 html_parts.append(title)
             
+            # 获取额外信息
+            desc = news_data.get("desc", "")
+            hot = news_data.get("hot", "")
+            timestamp = news_data.get("timestamp", "")
+            extra = news_data.get("extra", {})
+            
             html_parts.append(f'''
                     </div>
                     <span class="expand-icon">▼</span>
                 </div>
                 <div class="news-content">
                     <div class="news-detail">
-                        <p><strong>新闻标题：</strong>{title}</p>
-                        <p style="margin-top: 8px;"><strong>排名：</strong>{rank_text}</p>
-                        <p style="margin-top: 8px;"><strong>来源：</strong>{safe_platform}</p>''')
+                        <p style="margin-bottom: 10px;"><strong>📰 新闻标题：</strong>{title}</p>''')
+            
+            # 显示描述（如果有）
+            if desc:
+                safe_desc = html_escape(str(desc))
+                html_parts.append(f'<p style="margin-bottom: 10px; line-height: 1.8; color: #2d3748;"><strong>📝 内容描述：</strong><br/><span style="display: inline-block; margin-top: 5px; padding: 10px; background: #f0f4f8; border-radius: 4px; width: 100%;">{safe_desc}</span></p>')
+            
+            html_parts.append(f'<p style="margin-bottom: 8px;"><strong>📊 排名：</strong>{rank_text}</p>')
+            
+            # 显示热度（如果有）
+            if hot:
+                html_parts.append(f'<p style="margin-bottom: 8px;"><strong>🔥 热度：</strong><span style="color: #f56565; font-weight: bold;">{html_escape(str(hot))}</span></p>')
+            
+            # 显示时间戳（如果有）
+            if timestamp:
+                html_parts.append(f'<p style="margin-bottom: 8px;"><strong>⏰ 时间：</strong>{html_escape(str(timestamp))}</p>')
+            
+            html_parts.append(f'<p style="margin-bottom: 8px;"><strong>🏢 来源：</strong>{safe_platform}</p>')
+            
+            # 显示额外信息（如果有）
+            if extra and isinstance(extra, dict):
+                for key, value in extra.items():
+                    if value:
+                        safe_key = html_escape(str(key))
+                        safe_value = html_escape(str(value))
+                        html_parts.append(f'<p style="margin-bottom: 8px;"><strong>{safe_key}：</strong>{safe_value}</p>')
             
             if url:
                 safe_url = html_escape(url)
-                html_parts.append(f'<p style="margin-top: 8px;"><strong>链接：</strong><a href="{safe_url}" target="_blank" style="color: #2563eb;">点击查看原文</a></p>')
+                html_parts.append(f'<p style="margin-top: 12px;"><a href="{safe_url}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-size: 14px;">🔗 查看完整原文</a></p>')
+            else:
+                html_parts.append('<p style="margin-top: 12px; color: #999;">暂无原文链接</p>')
             
             html_parts.append('''
                     </div>
@@ -825,6 +866,11 @@ class DataFetcher:
                         title = item["title"]
                         url = item.get("url", "")
                         mobile_url = item.get("mobileUrl", "")
+                        # 提取更多可用字段
+                        desc = item.get("desc", "")  # 描述
+                        hot = item.get("hot", "")  # 热度
+                        timestamp = item.get("timestamp", "")  # 时间戳
+                        extra = item.get("extra", {})  # 额外信息
 
                         if title in results[id_value]:
                             results[id_value][title]["ranks"].append(index)
@@ -833,6 +879,10 @@ class DataFetcher:
                                 "ranks": [index],
                                 "url": url,
                                 "mobileUrl": mobile_url,
+                                "desc": desc,
+                                "hot": hot,
+                                "timestamp": timestamp,
+                                "extra": extra,
                             }
                 except json.JSONDecodeError:
                     print(f"解析 {id_value} 响应失败")
